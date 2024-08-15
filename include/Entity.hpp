@@ -27,4 +27,5 @@ public:
     size_t getId();
     bool isAlive();
     void destroy();
+    void updateShape();
 };

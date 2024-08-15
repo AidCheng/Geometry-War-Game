@@ -31,14 +31,6 @@ void Game::run()
     //       some system need to be functioning when paused
     while(m_window.isOpen() && m_running)
     {
-        sf::Event event;
-        while (m_window.pollEvent(event)) {
-            // Check for window close event
-            if (event.type == sf::Event::Closed) {
-                m_window.close();  // Close the window
-            }
-        }
-
         m_entityManager.update();
 
         if(!m_paused)
@@ -55,8 +47,44 @@ void Game::run()
 void Game::sMovement()
 {
     // TODO: impl all entity movement in this function
+    auto e = m_player;
+    updateSpeed(m_player);
+    e -> cTransform -> position.x += e -> cTransform -> velocity.x;
+    e -> cTransform -> position.y += e -> cTransform -> velocity.y;
 
 }
+
+void Game::updateSpeed(std::shared_ptr<Entity> e)
+{
+    const float speed = 5;
+    e -> cTransform ->velocity = {0,0};
+
+    // update speed
+    // move up
+    if(e->cInput->up)
+    {
+        e->cTransform->velocity.y -= speed;
+    }
+
+    // move down
+    if(e->cInput->down)
+    {
+        e->cTransform->velocity.y += speed;
+    }
+
+    // move left
+    if(e->cInput->left)
+    {
+        e->cTransform->velocity.x -= speed;
+    } 
+
+    // move right
+    if(e->cInput->right)
+    {
+        e->cTransform->velocity.x += speed;
+    }      
+}
+
 
 void Game::sUserInput()
 {
@@ -69,11 +97,13 @@ void Game::sUserInput()
     sf::Event event;
     while(m_window.pollEvent(event))
     {
+        // window closed
         if(event.type == sf::Event::Closed)
         {
             m_running = false;
         }
 
+        // handle pressed key
         if(event.type == sf::Event::KeyPressed)
         {
             switch (event.key.code)
@@ -81,13 +111,25 @@ void Game::sUserInput()
             case sf::Keyboard::W: 
                 m_player->cInput->up = true;
                 break;
-            
+
+            case sf::Keyboard::S:
+                m_player->cInput->down=true;
+                break;            
+
+            case sf::Keyboard::A:
+                m_player->cInput->left=true;
+                break;            
+
+            case sf::Keyboard::D:
+                m_player->cInput->right=true;
+                break;            
+
             default:
                 break;
             }
         }
 
-        // key released 
+        // handle released key
         if(event.type == sf::Event::KeyReleased)
         {
             switch (event.key.code)
@@ -96,6 +138,18 @@ void Game::sUserInput()
                 m_player->cInput->up = false;
                 break;
             
+            case sf::Keyboard::S:
+                m_player->cInput->down=false;
+                break;            
+
+            case sf::Keyboard::A:
+                m_player->cInput->left=false;
+                break;            
+
+            case sf::Keyboard::D:
+                m_player->cInput->right=false;
+                break;            
+
             default:
                 break;
             }
@@ -113,6 +167,11 @@ void Game::sRender()
 {
     // clear the previous frame
     m_window.clear();
+
+    for(auto e: m_entityManager.getEntities())
+    {
+        e -> updateShape();
+    }
 
     // draw the new frame
     // draw player

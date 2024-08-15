@@ -39,6 +39,8 @@ class Game
     void spawnBullet(std::shared_ptr<Entity> entry, const Vec2& mousePos);
     void spawnSpecialWeapon(std::shared_ptr<Entity> entity);
 
+    void updateSpeed(std::shared_ptr<Entity> e);
+
 public:
     Game(const std::string& config);
     void run();
