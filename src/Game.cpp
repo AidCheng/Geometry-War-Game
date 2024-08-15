@@ -175,14 +175,17 @@ void Game::sRender()
 
     // draw the new frame
     // draw player
-    m_window.draw(m_player->cShape->circle);
+    for(auto e: m_entityManager.getEntities())
+    {
+        m_window.draw(e -> cShape -> circle);
+    }
     
     m_window.display();
 }
 
 void Game::sEnemySpawner()
 {
-    if(!(m_currentFrame++)-m_lastEnemySpawnTime == 60)
+    if(!(((m_currentFrame++)-m_lastEnemySpawnTime) == 60))
     {
         return;
     }
@@ -231,7 +234,7 @@ void Game::spawnEnemy()
     entity -> cTransform = std::make_shared<CTransform> (Vec2(enemyX,enemyY), Vec2(1.0f, 1.0f), 0.0f);
 
     // set the entity's shape have radius 32, 8 vertices
-    entity -> cShape = std::make_shared<CShape> (32.0f, 8, sf::Color(0,0,255), sf::Color(255,255,255), 2.0f);
+    entity -> cShape = std::make_shared<CShape> (32.0f, (rand() % 9)+1, sf::Color(0,0,255), sf::Color(255,255,255), 2.0f);
 
     // Add input component to the player
     entity -> cInput = std::make_shared<CInput>();
