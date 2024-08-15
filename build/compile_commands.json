@@ -1,0 +1,32 @@
+[
+{
+  "directory": "/Users/aiden/Developer/COMP4300/Geo-Wars/build",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++  -I/Users/aiden/Developer/COMP4300/Geo-Wars/include -isystem /opt/homebrew/include -g -std=gnu++17 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk -o CMakeFiles/GEO_WAR.dir/src/Entity.cpp.o -c /Users/aiden/Developer/COMP4300/Geo-Wars/src/Entity.cpp",
+  "file": "/Users/aiden/Developer/COMP4300/Geo-Wars/src/Entity.cpp",
+  "output": "CMakeFiles/GEO_WAR.dir/src/Entity.cpp.o"
+},
+{
+  "directory": "/Users/aiden/Developer/COMP4300/Geo-Wars/build",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++  -I/Users/aiden/Developer/COMP4300/Geo-Wars/include -isystem /opt/homebrew/include -g -std=gnu++17 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk -o CMakeFiles/GEO_WAR.dir/src/EntityManager.cpp.o -c /Users/aiden/Developer/COMP4300/Geo-Wars/src/EntityManager.cpp",
+  "file": "/Users/aiden/Developer/COMP4300/Geo-Wars/src/EntityManager.cpp",
+  "output": "CMakeFiles/GEO_WAR.dir/src/EntityManager.cpp.o"
+},
+{
+  "directory": "/Users/aiden/Developer/COMP4300/Geo-Wars/build",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++  -I/Users/aiden/Developer/COMP4300/Geo-Wars/include -isystem /opt/homebrew/include -g -std=gnu++17 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk -o CMakeFiles/GEO_WAR.dir/src/Game.cpp.o -c /Users/aiden/Developer/COMP4300/Geo-Wars/src/Game.cpp",
+  "file": "/Users/aiden/Developer/COMP4300/Geo-Wars/src/Game.cpp",
+  "output": "CMakeFiles/GEO_WAR.dir/src/Game.cpp.o"
+},
+{
+  "directory": "/Users/aiden/Developer/COMP4300/Geo-Wars/build",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++  -I/Users/aiden/Developer/COMP4300/Geo-Wars/include -isystem /opt/homebrew/include -g -std=gnu++17 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk -o CMakeFiles/GEO_WAR.dir/src/Vec2.cpp.o -c /Users/aiden/Developer/COMP4300/Geo-Wars/src/Vec2.cpp",
+  "file": "/Users/aiden/Developer/COMP4300/Geo-Wars/src/Vec2.cpp",
+  "output": "CMakeFiles/GEO_WAR.dir/src/Vec2.cpp.o"
+},
+{
+  "directory": "/Users/aiden/Developer/COMP4300/Geo-Wars/build",
+  "command": "/Library/Developer/CommandLineTools/usr/bin/c++  -I/Users/aiden/Developer/COMP4300/Geo-Wars/include -isystem /opt/homebrew/include -g -std=gnu++17 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.0.sdk -o CMakeFiles/GEO_WAR.dir/src/main.cpp.o -c /Users/aiden/Developer/COMP4300/Geo-Wars/src/main.cpp",
+  "file": "/Users/aiden/Developer/COMP4300/Geo-Wars/src/main.cpp",
+  "output": "CMakeFiles/GEO_WAR.dir/src/main.cpp.o"
+}
+]
