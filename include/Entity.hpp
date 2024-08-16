@@ -20,7 +20,7 @@ public:
     std::shared_ptr<CShape> cShape;
     std::shared_ptr<CScore> cScore;
     std::shared_ptr<CCollision> cCollision;
-    std::shared_ptr<CLifeSpan> cLifeSpan;
+    std::shared_ptr<CLifeSpan> cLifeSpan = nullptr;
     std::shared_ptr<CInput> cInput;
     
     std::string tag();

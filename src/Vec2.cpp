@@ -1,5 +1,5 @@
 #include"../include/Vec2.hpp"
-
+#include <iostream>
 Vec2::Vec2()
 {
     // pass
@@ -73,6 +73,12 @@ float Vec2::squaredSum()
 float Vec2::dist (const Vec2& rhs) const
 {
     return sqrtf( powf((rhs.x - x),2) + powf((rhs.y - y),2));
+}
+
+void Vec2::print() const
+{
+    std::cout << "x=" << x << std::endl
+              << "y=" << y << std::endl;
 }
 
 

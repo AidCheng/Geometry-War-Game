@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream>
 
-// TODO: spawnSmallEnemies is not currently working
+// FIXME: spawnSmallEnemies is not currently working
 
 
 Game::Game(const std::string& config)
@@ -27,9 +27,9 @@ void Game::setPaused()
 {
     if(m_paused)
     {
-        m_paused = true;
-    } else {
         m_paused = false;
+    } else {
+        m_paused = true;
     }
 }
 
@@ -195,12 +195,14 @@ void Game::sUserInput()
 
 void Game::sLifespan()
 {
+    //TODO: impl lifespan system, then change opacity of the entity in the render system
 
 }
 
 //rendering system
 void Game::sRender()
 {
+    // TODO:
     // clear the previous frame
     m_window.clear();
 
@@ -211,8 +213,10 @@ void Game::sRender()
 
     // draw the new frame
     // draw player
+    int time = 0;
     for(auto e: m_entityManager.getEntities())
     {
+        std::cout << ++time << std::endl;
         m_window.draw(e -> cShape -> circle);
     }
     
@@ -258,7 +262,10 @@ void Game::sCollision()
 
 void Game::handleDeadEnemy(std::shared_ptr<Entity> enemy)
 {
-    spawnSmallEnemies(enemy);
+    if(enemy->cLifeSpan == nullptr)
+    {   
+        spawnSmallEnemies(enemy);
+    }
     enemy->destroy();
 }
 
@@ -294,12 +301,18 @@ void Game::spawnEnemy()
     float enemyY = rand() % m_window.getSize().y;
     Vec2 position = {enemyX, enemyY};
 
+    float speedX = -(rand()%6)+3;
+    float speedY = -(rand()%6)+3;
+    Vec2 speed = {speedX, speedY};
+
+    float radius = rand()%40 + 15;
+
     // Set the spawn position 200,200, with speed 1, 1 at angle of 0  
     // TODO: implement using EnemyConfig
-    entity -> cTransform = std::make_shared<CTransform> (position, Vec2(1.0f, 1.0f), 0.0f);
+    entity -> cTransform = std::make_shared<CTransform> (position, speed, 0.0f);
 
     // set the entity's shape have radius 32, 8 vertices
-    entity -> cShape = std::make_shared<CShape> (32.0f, (rand() % 4)+3, sf::Color(0,0,255), sf::Color(255,255,255), 2.0f);
+    entity -> cShape = std::make_shared<CShape> (radius, (rand() % 6)+3, sf::Color(0,0,255), sf::Color(255,255,255), 2.0f);
     entity -> cCollision = std::make_shared<CCollision> (32.0f);
 }
 
@@ -307,27 +320,33 @@ void Game::spawnEnemy()
 // position calculator for small enemy spawning
 Vec2 calculatePosition(Vec2 center, float angle, float radius)
 {
-    float x = x + 0.5 * (radius * cosf(angle));
-    float y = y - 0.5 * (radius * sinf(angle));
+    float x = center.x + 0.5 * (radius * cosf(angle));
+    float y = center.y - 0.5 * (radius * sinf(angle));
     return Vec2(x,y);
 }
 
 // spawn samll enemies when enemy died
 void Game::spawnSmallEnemies(std::shared_ptr<Entity> deadEntity)
 {
-    int vertices = deadEntity->cShape->circle.getPointCount();
+    float vertices = deadEntity->cShape->circle.getPointCount();
     float radius = deadEntity ->cShape->circle.getRadius();
+    float collisionRadius = (deadEntity->cCollision->radius)/2;
+    auto fColor = deadEntity->cShape->circle.getFillColor();
+    auto oColor = deadEntity->cShape->circle.getOutlineColor();
+
     for (int i = 0; i < vertices; i++) 
     {
-        std::cout<<"newSmallEnemy"<<std::endl;
         // calculate new position
         auto position = calculatePosition(deadEntity->cTransform->position,
-                                          i * 360, radius);
+                                          i/vertices * M_PI* 2.0, radius);
+        // calculate speed
+        Vec2 speed = {cosf(i* M_PI * 2.0 / vertices), -sinf(i * M_PI * 2.0 / vertices)};
 
+        // create new enemy
         auto e = m_entityManager.addEntity("enemy");
-        e -> cTransform = std::make_shared<CTransform> (position, Vec2(1.0f, 1.0f), 0.0f);
-        e -> cShape = std::make_shared<CShape> (radius, vertices, sf::Color(0,0,255), sf::Color(255,255,255), 2.0f);
-        e -> cCollision = std::make_shared<CCollision> (radius);
+        e -> cTransform = std::make_shared<CTransform> (position, speed, 0.0f);
+        e -> cShape = std::make_shared<CShape> (8.0f, vertices, fColor, oColor,2.0f);
+        e -> cCollision = std::make_shared<CCollision> (collisionRadius);
         // TODO: TOTAL LIFE SPAN
         e -> cLifeSpan = std::make_shared<CLifeSpan>(60);
     }

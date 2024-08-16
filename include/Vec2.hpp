@@ -27,4 +27,6 @@ public:
 
     float dist(const Vec2& rhs) const;
     void normalize();    
+
+    void print() const;
 };
