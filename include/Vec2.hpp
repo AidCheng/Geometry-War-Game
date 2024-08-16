@@ -23,6 +23,8 @@ public:
     void operator *= (const float rhs);
     void operator /= (const float rhs);
 
+    float squaredSum();
+
     float dist(const Vec2& rhs) const;
     void normalize();    
 };

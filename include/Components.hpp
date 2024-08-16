@@ -10,10 +10,10 @@ class CTransform
 {
 public:
     Vec2 position;
-    Vec2 velocity;
+    Vec2 velocity = {0,0};
     float angle    =  0;
 
-    CTransform(Vec2&& position, Vec2&& velocity, float angle)
+    CTransform(Vec2 position, Vec2 velocity, float angle)
         : angle(angle)
         , position(position)
         , velocity(velocity) 

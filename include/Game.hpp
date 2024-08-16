@@ -24,7 +24,7 @@ class Game
     std::shared_ptr<Entity> m_player;
 
     void init(const std::string& config);
-    void setPaused(bool paused);
+    void setPaused();
     
     void sMovement();
     void sUserInput();
@@ -36,10 +36,11 @@ class Game
     void spawnPlayer();
     void spawnEnemy();
     void spawnSmallEnemies(std::shared_ptr<Entity> entity);
-    void spawnBullet(std::shared_ptr<Entity> entry, const Vec2& mousePos);
+    void spawnBullet(std::shared_ptr<Entity> entry, const Vec2 mousePos);
     void spawnSpecialWeapon(std::shared_ptr<Entity> entity);
 
     void updateSpeed(std::shared_ptr<Entity> e);
+    void handleDeadEnemy(std::shared_ptr<Entity> enemy);
 
 public:
     Game(const std::string& config);

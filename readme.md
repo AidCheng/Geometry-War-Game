@@ -5,7 +5,7 @@
 
 ## How to build
 
-- Make sure you have installed cmake on your local machine
+- Make sure you have installed cmake and SFML installed on your local machine
 - To build, run the following command
 
 ```zsh

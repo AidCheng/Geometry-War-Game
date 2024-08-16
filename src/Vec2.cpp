@@ -65,6 +65,11 @@ void Vec2::operator /= (const float rhs)
     y /= rhs;
 }
 
+float Vec2::squaredSum()
+{
+    return x*x+y*y;
+}
+
 float Vec2::dist (const Vec2& rhs) const
 {
     return sqrtf( powf((rhs.x - x),2) + powf((rhs.y - y),2));

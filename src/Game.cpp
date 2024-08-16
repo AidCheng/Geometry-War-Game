@@ -20,9 +20,14 @@ void Game::init(const std::string& path)
     spawnPlayer();
 };
 
-void Game::setPaused(bool paused)
+void Game::setPaused()
 {
-
+    if(m_paused)
+    {
+        m_paused = true;
+    } else {
+        m_paused = false;
+    }
 }
 
 void Game::run()
@@ -36,22 +41,33 @@ void Game::run()
         if(!m_paused)
         {
             sEnemySpawner();
+            std::cout<<"spawner"<<std::endl;
             sMovement();
+            std::cout<<"Movement"<<std::endl;
+            std::cout << "TEST";
             sCollision();
+            std::cout<<"Collision"<<std::endl;
         } 
         sUserInput();
+        std::cout<<"Input"<<std::endl;
         sRender();
+        std::cout<<"Render"<<std::endl<<std::endl;
     }
 }
 
 void Game::sMovement()
 {
     // TODO: impl all entity movement in this function
-    auto e = m_player;
-    updateSpeed(m_player);
-    e -> cTransform -> position.x += e -> cTransform -> velocity.x;
-    e -> cTransform -> position.y += e -> cTransform -> velocity.y;
+    for(auto e: m_entityManager.getEntities())
+    {
+        if(e->tag() == "player")
+        {
+            updateSpeed(e);
+        }
 
+        e -> cTransform -> position.x += e -> cTransform -> velocity.x;
+        e -> cTransform -> position.y += e -> cTransform -> velocity.y;
+    }
 }
 
 void Game::updateSpeed(std::shared_ptr<Entity> e)
@@ -122,7 +138,11 @@ void Game::sUserInput()
 
             case sf::Keyboard::D:
                 m_player->cInput->right=true;
-                break;            
+                break;          
+
+            case sf::Keyboard::P:
+                setPaused();  
+                break;
 
             default:
                 break;
@@ -152,6 +172,20 @@ void Game::sUserInput()
 
             default:
                 break;
+            }
+        }
+
+        // mouse control
+        if(event.type == sf::Event::MouseButtonPressed)
+        {
+            if (event.mouseButton.button == sf::Mouse::Left)
+            {
+                spawnBullet(m_player, Vec2(event.mouseButton.x, event.mouseButton.y));
+            }
+
+            if (event.mouseButton.button == sf::Mouse::Right)
+            {
+                
             }
         }
     }
@@ -192,24 +226,50 @@ void Game::sEnemySpawner()
 
     spawnEnemy();
     m_currentFrame = m_lastEnemySpawnTime; 
+
 }
 
+// collision system
 void Game::sCollision()
-{
+{   
+    // looping all the bullet and enemies
+    for(auto bullet: m_entityManager.getEntities("bullet"))
+    {
+        for(auto e: m_entityManager.getEntities("enemy"))
+        {
+            // calculate and compare the distance2 to determine whether collided
+            auto diffVec = e->cTransform->position - bullet->cTransform->position;
+            float sqrSum = diffVec.squaredSum();
+            float minDistance2 = powf(bullet->cCollision->radius
+                                     + e->cCollision->radius, 2);
+            if(sqrSum <= minDistance2)
+            {
+                bullet->destroy();
+                handleDeadEnemy(e);
+                break;
+            }
+        }
+    }
+}
 
+void Game::handleDeadEnemy(std::shared_ptr<Entity> enemy)
+{
+    spawnSmallEnemies(enemy);
+    enemy->destroy();
 }
 
 ////////////////////////
 void Game::spawnPlayer()
 {
-    auto entity = m_entityManager.addEntity("Player"); 
+    auto entity = m_entityManager.addEntity("player"); 
 
     float mx = m_window.getSize().x / 2.0f;
     float my = m_window.getSize().y / 2.0f;
+    // Vec2 position = {mx, my}
 
     // Set the spawn position 200,200, with speed 1, 1 at angle of 0  
     // TODO: implement using PlayerConfig
-    entity -> cTransform = std::make_shared<CTransform>(Vec2(mx, my), Vec2(1.0f, 1.0f), 0.0f);
+    entity -> cTransform = std::make_shared<CTransform>(Vec2(mx, my), Vec2(0.0f, 0.0f), 0.0f);
 
     // set the entity's shape have radius 32, 8 vertices
     entity -> cShape = std::make_shared<CShape> (50.0f, 5, sf::Color(255,255,255), sf::Color(255,255,255), 2.0f);
@@ -223,33 +283,63 @@ void Game::spawnPlayer()
 // spawn an enemy at a random position
 void Game::spawnEnemy()
 {
-    //TODO: the enemy must spawned completely within the bounds of the window
-    auto entity = m_entityManager.addEntity("Enemy"); 
+    auto entity = m_entityManager.addEntity("enemy");
 
+    //TODO: the enemy must spawned completely within the bounds of the window
     float enemyX = rand() % m_window.getSize().x;
     float enemyY = rand() % m_window.getSize().y;
-    
+    Vec2 position = {enemyX, enemyY};
+
     // Set the spawn position 200,200, with speed 1, 1 at angle of 0  
-    // TODO: implement using PlayerConfig
-    entity -> cTransform = std::make_shared<CTransform> (Vec2(enemyX,enemyY), Vec2(1.0f, 1.0f), 0.0f);
+    // TODO: implement using EnemyConfig
+    entity -> cTransform = std::make_shared<CTransform> (position, Vec2(1.0f, 1.0f), 0.0f);
 
     // set the entity's shape have radius 32, 8 vertices
     entity -> cShape = std::make_shared<CShape> (32.0f, (rand() % 9)+1, sf::Color(0,0,255), sf::Color(255,255,255), 2.0f);
+}
 
-    // Add input component to the player
-    entity -> cInput = std::make_shared<CInput>();
+
+// position calculator for small enemy spawning
+Vec2 calculatePosition(Vec2 center, float angle, float radius)
+{
+    float x = x + 0.5 * (radius * cosf(angle));
+    float y = y - 0.5 * (radius * sinf(angle));
+    return Vec2(x,y);
 }
 
 // spawn samll enemies when enemy died
-void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
+void Game::spawnSmallEnemies(std::shared_ptr<Entity> deadEntity)
 {
+    int vertices = deadEntity->cShape->circle.getPointCount();
+    float radius = deadEntity ->cShape->circle.getRadius();
+    for (int i = 0; i < vertices; i++) 
+    {
+        // calculate new position
+        auto position = calculatePosition(deadEntity->cTransform->position,
+                                          i * 360, radius);
 
+        auto e = m_entityManager.addEntity("enemy");
+        e -> cTransform = std::make_shared<CTransform> (position, Vec2(1.0f, 1.0f), 0.0f);
+        e -> cShape = std::make_shared<CShape> (radius, vertices, sf::Color(0,0,255), sf::Color(255,255,255), 2.0f);
+        // TODO: TOTAL LIFE SPAN
+        e -> cLifeSpan = std::make_shared<CLifeSpan>(60);
+    }
 }
 
 // spawn bullet
-void Game::spawnBullet(std::shared_ptr<Entity> entry, const Vec2& mousePos)
+void Game::spawnBullet(std::shared_ptr<Entity> entry, const Vec2 target)
 {
+    //TODO: calculate the angle toward the target
+    //      and find the spawn point of the bullet
+    auto bullet = m_entityManager.addEntity("bullet");
+    // bullet position
+    float bx = target.x;
+    float by = target.y;
 
+    // configure bullet components
+    bullet->cTransform = std::make_shared<CTransform> (Vec2(bx,by), Vec2(10.0f, 10.0f), 0);
+    bullet->cShape = std::make_shared<CShape> (10.0f, 8, sf::Color(255,255,255), sf::Color(255,255,255), 1.0f);
+    bullet->cLifeSpan = std::make_shared<CLifeSpan> (120);
 }
 
 // spawn special skill
