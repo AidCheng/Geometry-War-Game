@@ -6,6 +6,9 @@
 ## How to build
 
 - Make sure you have installed cmake and SFML installed on your local machine
+  - MacOS (example)
+    - To install cmake `brew install cmake`
+    - To install SFML `brew install sfml`
 - To build, run the following command
 
 ```zsh
