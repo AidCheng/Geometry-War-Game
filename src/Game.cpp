@@ -58,19 +58,54 @@ void Game::run()
     }
 }
 
+
+// movement system with bounds check
 void Game::sMovement()
 {
-    // TODO: impl all entity movement in this function
     for(auto e: m_entityManager.getEntities())
     {
         if(e->tag() == "player")
         {
             updateSpeed(e);
         }
-
-        e -> cTransform -> position.x += e -> cTransform -> velocity.x;
-        e -> cTransform -> position.y += e -> cTransform -> velocity.y;
+        
+        // update position with bounds check
+        updatePosition(e);
     }
+}
+
+void Game::updatePosition(std::shared_ptr<Entity> e)
+{
+    float leftBound = e->cCollision->radius;
+    float upBound = e->cCollision->radius;
+    float rightBound = m_window.getSize().x - leftBound; 
+    float lowBound = m_window.getSize().y - upBound;
+
+
+    Vec2 newPos = e->cTransform->position;
+    float newX = e -> cTransform -> position.x += e -> cTransform -> velocity.x;
+    float newY = e -> cTransform -> position.y += e -> cTransform -> velocity.y;
+
+    if(!(newX <= leftBound || newX >= rightBound))
+    {
+        newPos.x = newX; 
+    } 
+        else if(e->tag() != "player")
+    {
+        e->cTransform->velocity.x = -e->cTransform->velocity.x;
+    }
+
+
+    if(!(newY <= upBound || newY >= lowBound))
+    {
+        newPos.y = newY;
+    } 
+        else if(e->tag() != "player")
+    {
+        e->cTransform->velocity.y = -e->cTransform->velocity.y;
+    }
+
+    e->cTransform->position = newPos;
 }
 
 void Game::updateSpeed(std::shared_ptr<Entity> e)
@@ -267,7 +302,6 @@ void Game::sCollision()
             }
         }
     }
-    
 }
 
 void Game::handleDeadEnemy(std::shared_ptr<Entity> enemy)
@@ -288,9 +322,9 @@ void Game::spawnPlayer()
     float my = m_window.getSize().y / 2.0f;
     // Vec2 position = {mx, my}
 
-    // Set the spawn position 200,200, with speed 1, 1 at angle of 0  
     // TODO: implement using PlayerConfig
     entity -> cTransform = std::make_shared<CTransform>(Vec2(mx, my), Vec2(0.0f, 0.0f), 0.0f);
+    entity -> cCollision = std::make_shared<CCollision>(50.0f);
 
     // set the entity's shape have radius 32, 8 vertices
     entity -> cShape = std::make_shared<CShape> (50.0f, 5, sf::Color(255,255,255), sf::Color(255,255,255), 2.0f);

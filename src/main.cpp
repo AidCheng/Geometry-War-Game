@@ -4,8 +4,8 @@
 #include <iostream>
 
 
-int main(){
-    
+int main()
+{
     std::string config = "config";
     auto game = Game(config);
     game.run();
