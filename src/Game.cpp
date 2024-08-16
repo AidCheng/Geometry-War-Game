@@ -3,6 +3,9 @@
 #include <iostream>
 #include <fstream>
 
+// TODO: spawnSmallEnemies is not currently working
+
+
 Game::Game(const std::string& config)
 {
     init(config);
@@ -44,7 +47,6 @@ void Game::run()
             std::cout<<"spawner"<<std::endl;
             sMovement();
             std::cout<<"Movement"<<std::endl;
-            std::cout << "TEST";
             sCollision();
             std::cout<<"Collision"<<std::endl;
         } 
@@ -241,15 +243,17 @@ void Game::sCollision()
             auto diffVec = e->cTransform->position - bullet->cTransform->position;
             float sqrSum = diffVec.squaredSum();
             float minDistance2 = powf(bullet->cCollision->radius
-                                     + e->cCollision->radius, 2);
+                                    + e->cCollision->radius, 2);
             if(sqrSum <= minDistance2)
             {
                 bullet->destroy();
                 handleDeadEnemy(e);
+                std::cout<<"hit";
                 break;
             }
         }
     }
+    
 }
 
 void Game::handleDeadEnemy(std::shared_ptr<Entity> enemy)
@@ -295,7 +299,8 @@ void Game::spawnEnemy()
     entity -> cTransform = std::make_shared<CTransform> (position, Vec2(1.0f, 1.0f), 0.0f);
 
     // set the entity's shape have radius 32, 8 vertices
-    entity -> cShape = std::make_shared<CShape> (32.0f, (rand() % 9)+1, sf::Color(0,0,255), sf::Color(255,255,255), 2.0f);
+    entity -> cShape = std::make_shared<CShape> (32.0f, (rand() % 4)+3, sf::Color(0,0,255), sf::Color(255,255,255), 2.0f);
+    entity -> cCollision = std::make_shared<CCollision> (32.0f);
 }
 
 
@@ -314,6 +319,7 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> deadEntity)
     float radius = deadEntity ->cShape->circle.getRadius();
     for (int i = 0; i < vertices; i++) 
     {
+        std::cout<<"newSmallEnemy"<<std::endl;
         // calculate new position
         auto position = calculatePosition(deadEntity->cTransform->position,
                                           i * 360, radius);
@@ -321,6 +327,7 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> deadEntity)
         auto e = m_entityManager.addEntity("enemy");
         e -> cTransform = std::make_shared<CTransform> (position, Vec2(1.0f, 1.0f), 0.0f);
         e -> cShape = std::make_shared<CShape> (radius, vertices, sf::Color(0,0,255), sf::Color(255,255,255), 2.0f);
+        e -> cCollision = std::make_shared<CCollision> (radius);
         // TODO: TOTAL LIFE SPAN
         e -> cLifeSpan = std::make_shared<CLifeSpan>(60);
     }
@@ -337,8 +344,9 @@ void Game::spawnBullet(std::shared_ptr<Entity> entry, const Vec2 target)
     float by = target.y;
 
     // configure bullet components
-    bullet->cTransform = std::make_shared<CTransform> (Vec2(bx,by), Vec2(10.0f, 10.0f), 0);
+    bullet->cTransform = std::make_shared<CTransform> (Vec2(bx,by), Vec2(0.0f, 0.0f), 0);
     bullet->cShape = std::make_shared<CShape> (10.0f, 8, sf::Color(255,255,255), sf::Color(255,255,255), 1.0f);
+    bullet->cCollision = std::make_shared<CCollision> (10.0f);
     bullet->cLifeSpan = std::make_shared<CLifeSpan> (120);
 }
 

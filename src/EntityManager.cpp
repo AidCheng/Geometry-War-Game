@@ -1,5 +1,5 @@
 #include "EntityManager.hpp"
-
+#include <cassert>
 std::shared_ptr<Entity> EntityManager::addEntity(const std::string& tag)
 {
     auto e = std::shared_ptr<Entity> (new Entity(tag, m_totalEntities++)); 
@@ -18,25 +18,26 @@ void EntityManager::update(){
     // Remove entities NOT ALIVE
     for(auto e: m_entities)
     {
+        assert(e!=nullptr);
         if(e->isAlive())
         {
             continue;
         } else {
             auto& taggedVec = m_entityMap[e->tag()];
-           
             // Remove from Map
             taggedVec.erase(std::remove(taggedVec.begin(),
                                         taggedVec.end(),
                                         e), 
                                         taggedVec.end());
         } 
-        // Remove from Vector
-        m_entities.erase(std::remove_if(m_entities.begin(),
+         
+    }
+    // remove from Vector
+    m_entities.erase(std::remove_if(m_entities.begin(),
                                         m_entities.end(),
                                         [](std::shared_ptr<Entity> e){
                                             return !e->isAlive();}),
                                         m_entities.end());
-    }
 }
 
 EntityVec& EntityManager::getEntities()
