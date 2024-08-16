@@ -52,8 +52,8 @@ public:
 class CLifeSpan
 {
 public:
-    int total = 0;
-    int remaining = 0;
+    float total = 0.0;
+    float remaining = 0.0;
     CLifeSpan(int total): total(total), remaining(total) {}
 };
 
