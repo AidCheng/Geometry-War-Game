@@ -37,7 +37,7 @@ void Game::run()
 {
     // TODO: add pause functino
     //       some system need to be functioning when paused
-    while(m_window.isOpen() && m_running)
+    while(m_running)
     {
         m_entityManager.update();
 
@@ -74,6 +74,7 @@ void Game::sMovement()
     }
 }
 
+// update position for the entity and check bounds
 void Game::updatePosition(std::shared_ptr<Entity> e)
 {
     float leftBound = e->cCollision->radius;
@@ -86,16 +87,19 @@ void Game::updatePosition(std::shared_ptr<Entity> e)
     float newX = e -> cTransform -> position.x += e -> cTransform -> velocity.x;
     float newY = e -> cTransform -> position.y += e -> cTransform -> velocity.y;
 
+    // check horizontal bounds
     if(!(newX <= leftBound || newX >= rightBound))
     {
+        // only update the position when NOT out of bounds
         newPos.x = newX; 
     } 
         else if(e->tag() != "player")
     {
+        // reverse velocity on non-player entities when out of bounds
         e->cTransform->velocity.x = -e->cTransform->velocity.x;
     }
 
-
+    // check vertical bounds
     if(!(newY <= upBound || newY >= lowBound))
     {
         newPos.y = newY;
@@ -105,6 +109,7 @@ void Game::updatePosition(std::shared_ptr<Entity> e)
         e->cTransform->velocity.y = -e->cTransform->velocity.y;
     }
 
+    // update position info stored in the component
     e->cTransform->position = newPos;
 }
 
