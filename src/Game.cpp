@@ -49,6 +49,7 @@ void Game::run()
             std::cout<<"Movement"<<std::endl;
             sCollision();
             std::cout<<"Collision"<<std::endl;
+            sLifespan();
         } 
         sUserInput();
         std::cout<<"Input"<<std::endl;
@@ -196,6 +197,18 @@ void Game::sUserInput()
 void Game::sLifespan()
 {
     //TODO: impl lifespan system, then change opacity of the entity in the render system
+    for(auto e:m_entityManager.getEntities())
+    {
+        if(e->cLifeSpan == nullptr)
+        {
+            continue;;
+        } 
+
+        if(e->cLifeSpan->remaining-- == 0)
+        {
+            e->destroy();
+        }
+    }
 
 }
 
@@ -213,10 +226,8 @@ void Game::sRender()
 
     // draw the new frame
     // draw player
-    int time = 0;
     for(auto e: m_entityManager.getEntities())
     {
-        std::cout << ++time << std::endl;
         m_window.draw(e -> cShape -> circle);
     }
     
@@ -252,7 +263,6 @@ void Game::sCollision()
             {
                 bullet->destroy();
                 handleDeadEnemy(e);
-                std::cout<<"hit";
                 break;
             }
         }

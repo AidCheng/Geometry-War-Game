@@ -25,3 +25,8 @@ void Entity::updateShape()
     cShape -> circle.setPosition(sf::Vector2f(cTransform -> position.x, cTransform -> position.y));
     cShape -> circle.setRotation(cTransform->angle++);
 }
+
+float Entity::lifeSpanRatio()
+{
+    return cLifeSpan->remaining / cLifeSpan->total;
+}
