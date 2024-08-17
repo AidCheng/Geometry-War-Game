@@ -251,7 +251,6 @@ void Game::sLifespan()
 //rendering system
 void Game::sRender()
 {
-    // TODO:
     // clear the previous frame
     m_window.clear();
 
@@ -279,7 +278,6 @@ void Game::sEnemySpawner()
 
     spawnEnemy();
     m_currentFrame = m_lastEnemySpawnTime; 
-
 }
 
 // collision system
@@ -385,7 +383,8 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> deadEntity)
         auto position = calculatePosition(deadEntity->cTransform->position,
                                           i/vertices * M_PI* 2.0, radius);
         // calculate speed
-        Vec2 speed = {cosf(i* M_PI * 2.0 / vertices), -sinf(i * M_PI * 2.0 / vertices)};
+        Vec2 speed = {cosf(i* M_PI * 2.0 / vertices) + deadEntity->cTransform->velocity.x, 
+                      -sinf(i * M_PI * 2.0 / vertices) + deadEntity->cTransform->velocity.y};
 
         // create new enemy
         auto e = m_entityManager.addEntity("enemy");
