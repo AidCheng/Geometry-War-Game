@@ -38,8 +38,6 @@ void EntityManager::update(){
                                         [](std::shared_ptr<Entity> e){
                                             return !e->isAlive();}),
                                         m_entities.end());
-
-    std::cout << getEntities("enemy").size() << std::endl;
 }
 
 EntityVec& EntityManager::getEntities()

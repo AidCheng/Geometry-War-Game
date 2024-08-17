@@ -3,8 +3,7 @@
 #include <iostream>
 #include <fstream>
 
-// FIXME: spawnSmallEnemies is not currently working
-
+// TODO: scoring system
 
 Game::Game(const std::string& config)
 {
@@ -35,8 +34,7 @@ void Game::setPaused()
 
 void Game::run()
 {
-    // TODO: add pause functino
-    //       some system need to be functioning when paused
+    // some system need to be functioning when paused
     while(m_running)
     {
         m_entityManager.update();
@@ -145,14 +143,10 @@ void Game::updateSpeed(std::shared_ptr<Entity> e)
 }
 
 
+// handles all the user input, does not contain the logic of handling
 void Game::sUserInput()
-{
-    /* TODO: handle user input here
-             should ONLY be setting player's input component variables here
-             should NOT impl the movement logic
-             the movement system WILL READ the variables set in the function
-    */
-    
+{ 
+
     sf::Event event;
     while(m_window.pollEvent(event))
     {
@@ -228,7 +222,7 @@ void Game::sUserInput()
 
             if (event.mouseButton.button == sf::Mouse::Right)
             {
-                
+                spawnSpecialWeapon(m_player);
             }
         }
     }
@@ -239,11 +233,13 @@ void Game::sLifespan()
     //TODO: impl lifespan system, then change opacity of the entity in the render system
     for(auto e:m_entityManager.getEntities())
     {
+        // ignore entities with infinite lifespan
         if(e->cLifeSpan == nullptr)
         {
             continue;;
         } 
 
+        // destroy entities with 0 remaining lifespan
         if(e->cLifeSpan->remaining-- == 0)
         {
             e->destroy();
@@ -259,13 +255,13 @@ void Game::sRender()
     // clear the previous frame
     m_window.clear();
 
+    // update shape data
     for(auto e: m_entityManager.getEntities())
     {
         e -> updateShape();
     }
 
-    // draw the new frame
-    // draw player
+    // draw the entities 
     for(auto e: m_entityManager.getEntities())
     {
         m_window.draw(e -> cShape -> circle);
@@ -404,18 +400,23 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> deadEntity)
 // spawn bullet
 void Game::spawnBullet(std::shared_ptr<Entity> entry, const Vec2 target)
 {
-    //TODO: calculate the angle toward the target
-    //      and find the spawn point of the bullet
+
+    //TODO: calculate the spawn point of the bullet
     auto bullet = m_entityManager.addEntity("bullet");
     // bullet position
-    float bx = target.x;
-    float by = target.y;
+    // float bx = target.x;
+    // float by = target.y;
+    auto velocity = (target - entry->cTransform->position);
+    velocity.normalize();
+    velocity *= 15.0f;
+
+    Vec2 position = entry->cTransform->position;
 
     // configure bullet components
-    bullet->cTransform = std::make_shared<CTransform> (Vec2(bx,by), Vec2(0.0f, 0.0f), 0);
+    bullet->cTransform = std::make_shared<CTransform> (position, velocity, 0);
     bullet->cShape = std::make_shared<CShape> (10.0f, 8, sf::Color(255,255,255), sf::Color(255,255,255), 1.0f);
     bullet->cCollision = std::make_shared<CCollision> (10.0f);
-    bullet->cLifeSpan = std::make_shared<CLifeSpan> (120);
+    bullet->cLifeSpan = std::make_shared<CLifeSpan> (240);
 }
 
 // spawn special skill

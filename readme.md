@@ -19,4 +19,3 @@ cmake --build .
 ```
 
 - To run the game, run `GEO_WAR` under the `build` directory
-

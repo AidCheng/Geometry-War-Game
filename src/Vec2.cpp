@@ -81,4 +81,9 @@ void Vec2::print() const
               << "y=" << y << std::endl;
 }
 
-
+void Vec2::normalize()
+{
+    float hypotenuse = sqrtf(squaredSum());
+    x = x / hypotenuse;
+    y = y / hypotenuse; 
+}
