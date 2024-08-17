@@ -31,6 +31,11 @@
         - A unique game mechanic is intro via *a new component*
         - 'A cooldown timer' needed
 
+// Create a robot that generates temporary razer toward the closest enemy
+// The razar shoots once with a cooldown time
+// The robot is destroyed when collide with any enemies after 5 times;
+// 30s cooldown time for a new robot, two robot **cannot exist** at the same time
+
 - Enemies
     - spawn in random location every X(defined in conf) frames
     - cannot overlap the sides of the screen

@@ -41,6 +41,7 @@ void Game::run()
 
         if(!m_paused)
         {
+            std::cout << m_score << std::endl;
             sEnemySpawner();
             std::cout<<"spawner"<<std::endl;
             sMovement();
@@ -111,6 +112,8 @@ void Game::updatePosition(std::shared_ptr<Entity> e)
     e->cTransform->position = newPos;
 }
 
+
+// update the speed of the player entity based on input 
 void Game::updateSpeed(std::shared_ptr<Entity> e)
 {
     const float speed = 5;
@@ -234,7 +237,6 @@ void Game::sUserInput()
 
 void Game::sLifespan()
 {
-    //TODO: impl lifespan system, then change opacity of the entity in the render system
     for(auto e:m_entityManager.getEntities())
     {
         // ignore entities with infinite lifespan
@@ -305,6 +307,8 @@ void Game::sCollision()
             }
         }
     }
+
+    // TODO: player life system
 }
 
 void Game::handleDeadEnemy(std::shared_ptr<Entity> enemy)
@@ -313,6 +317,9 @@ void Game::handleDeadEnemy(std::shared_ptr<Entity> enemy)
     {   
         spawnSmallEnemies(enemy);
     }
+
+    // update player scores
+    m_score += enemy->cScore->score;
     enemy->destroy();
 }
 
@@ -343,24 +350,24 @@ void Game::spawnEnemy()
 {
     auto entity = m_entityManager.addEntity("enemy");
 
-    //TODO: the enemy must spawned completely within the bounds of the window
-    float enemyX = rand() % m_window.getSize().x;
-    float enemyY = rand() % m_window.getSize().y;
-    Vec2 position = {enemyX, enemyY};
+    // radius between min and max
+    int radius = rand() % 40 + 15;
+    // vertices between [3,8]
+    int vertices = rand() % 6 + 3; 
 
     float speedX = -(rand()%6)+3;
     float speedY = -(rand()%6)+3;
     Vec2 speed = {speedX, speedY};
 
-    float radius = rand()%40 + 15;
+    float enemyX = rand() % (m_window.getSize().x - radius) + radius;
+    float enemyY = rand() % (m_window.getSize().y - radius) + radius;
+    Vec2 position = {enemyX, enemyY};
 
-    // Set the spawn position 200,200, with speed 1, 1 at angle of 0  
     // TODO: implement using EnemyConfig
     entity -> cTransform = std::make_shared<CTransform> (position, speed, 0.0f);
-
-    // set the entity's shape have radius 32, 8 vertices
-    entity -> cShape = std::make_shared<CShape> (radius, (rand() % 6)+3, sf::Color(0,0,255), sf::Color(255,255,255), 2.0f);
+    entity -> cShape = std::make_shared<CShape> (radius, vertices, sf::Color(0,0,255), sf::Color(255,255,255), 2.0f);
     entity -> cCollision = std::make_shared<CCollision> (32.0f);
+    entity -> cScore = std::make_shared<CScore> (100 * vertices); 
 }
 
 
@@ -395,6 +402,7 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> deadEntity)
         e -> cTransform = std::make_shared<CTransform> (position, speed, 0.0f);
         e -> cShape = std::make_shared<CShape> (8.0f, vertices, fColor, oColor,2.0f);
         e -> cCollision = std::make_shared<CCollision> (collisionRadius);
+        e -> cScore = std::make_shared<CScore> (100 * vertices); 
         e -> cLifeSpan = std::make_shared<CLifeSpan>(60);
     }
 }
@@ -405,16 +413,16 @@ void Game::spawnBullet(std::shared_ptr<Entity> entry, const Vec2 target)
 
     //TODO: calculate the spawn point of the bullet
     auto bullet = m_entityManager.addEntity("bullet");
-    // bullet position
-    // float bx = target.x;
-    // float by = target.y;
+
+    // bullet velocity 
     auto velocity = (target - entry->cTransform->position);
     velocity.normalize();
     velocity *= 15.0f;
 
+    // bullet position
     Vec2 position = entry->cTransform->position;
 
-    // configure bullet components
+    // bullet components
     bullet->cTransform = std::make_shared<CTransform> (position, velocity, 0);
     bullet->cShape = std::make_shared<CShape> (10.0f, 8, sf::Color(255,255,255), sf::Color(255,255,255), 1.0f);
     bullet->cCollision = std::make_shared<CCollision> (10.0f);

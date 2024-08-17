@@ -42,6 +42,7 @@ class Game
     void updateSpeed(std::shared_ptr<Entity> e);
     void handleDeadEnemy(std::shared_ptr<Entity> enemy);
     void updatePosition(std::shared_ptr<Entity> entity);
+    
 public:
     Game(const std::string& config);
     void run();
