@@ -181,6 +181,10 @@ void Game::sUserInput()
                 setPaused();  
                 break;
 
+            case sf::Keyboard::Escape:
+                m_running = false;
+                break;
+
             default:
                 break;
             }
@@ -391,7 +395,6 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> deadEntity)
         e -> cTransform = std::make_shared<CTransform> (position, speed, 0.0f);
         e -> cShape = std::make_shared<CShape> (8.0f, vertices, fColor, oColor,2.0f);
         e -> cCollision = std::make_shared<CCollision> (collisionRadius);
-        // TODO: TOTAL LIFE SPAN
         e -> cLifeSpan = std::make_shared<CLifeSpan>(60);
     }
 }
