@@ -1,7 +1,7 @@
-# Readme
+# README
 
 - This is the indie game project based on SFML GUI and ECS design pattern
-- The project is the assignment from COMP4300 Game Programming by Dr. Dave Churchill
+- The project is inspired by the COMP4300 Game Programming open couse delivered by Dr. Dave Churchill
 
 ## How to build
 
