@@ -13,14 +13,73 @@ Game::Game(const std::string& config)
 void Game::init(const std::string& path)
 {
     // TODO: read in config file, use premade Config variables
-    std::ifstream fin(path);
-
+   
+    config(path);
     // set up default window parameters
-    m_window.create(sf::VideoMode(1280, 720), "GEO-WAR");
-    m_window.setFramerateLimit(60);
+    // m_window.create(sf::VideoMode(1280, 720), "GEO-WAR", sf::Style::Fullscreen);
+    // m_window.setFramerateLimit(60);
 
     spawnPlayer();
 };
+
+void Game::config(const std::string& path)
+{
+    std::ifstream fin(path);
+    std::string target;
+    while(fin >> target)
+    {
+        if(target == "Window")
+        {
+            configWindow(fin);
+        }
+
+        if(target == "Player")
+        {
+            configPlayer(fin);
+        }
+
+        if(target == "Enemy")
+        {
+            configEnemy(fin);
+        }
+    }
+}
+
+void Game::configWindow(std::ifstream& fin)
+{
+    int width, height, frameLimit;
+    bool isFullScreen;
+    fin >> width >> height >> frameLimit >> isFullScreen;
+
+    // create screen
+    if(isFullScreen)
+    {
+        m_window.create(sf::VideoMode(width, height), "GEOWAR", sf::Style::Fullscreen);
+    } else {
+        m_window.create(sf::VideoMode(width, height), "GEOWAR");
+    }
+
+    m_window.setFramerateLimit(frameLimit);
+}
+
+void Game::configPlayer(std::ifstream& fin)
+{
+    fin >> m_playerConfig.shapeRadius >> m_playerConfig.collisionRadius  
+       >> m_playerConfig.speed >> m_playerConfig.fillRed >> m_playerConfig.fillGreen >> m_playerConfig.fillBlue
+       >> m_playerConfig.outlineRed >> m_playerConfig.outlineGreen >> m_playerConfig.outlineBlue
+       >> m_playerConfig.outlineThickness >> m_playerConfig.vertices;
+}
+
+void Game::configEnemy(std::ifstream& fin)
+{
+    fin >> m_enemyConfig.shapeRadius >> m_enemyConfig.collisionRadius  
+       >> m_enemyConfig.minSpeed >> m_enemyConfig.maxSpeed
+       >> m_enemyConfig.outlineRed >> m_enemyConfig.outlineGreen >> m_enemyConfig.outlineBlue >> m_enemyConfig.outlineThickness
+       >> m_enemyConfig.minVertices >> m_enemyConfig.maxVertices
+       >> m_enemyConfig.smallEnemyLifespan >> m_enemyConfig.spawnInterval;
+}
+
+
 
 void Game::setPaused()
 {
@@ -116,7 +175,7 @@ void Game::updatePosition(std::shared_ptr<Entity> e)
 // update the speed of the player entity based on input 
 void Game::updateSpeed(std::shared_ptr<Entity> e)
 {
-    const float speed = 5;
+    float speed = m_playerConfig.speed;
     e -> cTransform ->velocity = {0,0};
 
     // update speed
@@ -277,7 +336,8 @@ void Game::sRender()
 
 void Game::sEnemySpawner()
 {
-    if(!(((m_currentFrame++)-m_lastEnemySpawnTime) == 60))
+    int spawnInterval = m_enemyConfig.spawnInterval;
+    if(!(((m_currentFrame++)-m_lastEnemySpawnTime) == spawnInterval))
     {
         return;
     }
@@ -326,19 +386,35 @@ void Game::handleDeadEnemy(std::shared_ptr<Entity> enemy)
 ////////////////////////
 void Game::spawnPlayer()
 {
-    auto entity = m_entityManager.addEntity("player"); 
-
+    // data preparation
     float mx = m_window.getSize().x / 2.0f;
     float my = m_window.getSize().y / 2.0f;
-    // Vec2 position = {mx, my}
+    Vec2 centre = {mx, my};
+    Vec2 initSpeed = {0,0};
+    float initAngle = 0.0f;
+    float shapeRadius = m_playerConfig.shapeRadius;
+    float collisionRadius = m_playerConfig.collisionRadius;
+    float thickness = m_playerConfig.outlineThickness; 
 
+    int fillR = m_playerConfig.fillRed;
+    int fillG = m_playerConfig.fillGreen;
+    int fillB = m_playerConfig.fillBlue;
+    std::cout << fillR << fillG << fillB << std::endl;
+    sf::Color fill(fillR, fillG, fillB);
+
+    int outlineR = m_playerConfig.outlineRed;
+    int outlineG = m_playerConfig.outlineGreen;
+    int outlineB = m_playerConfig.outlineBlue;
+    sf::Color outline(outlineR, outlineG, outlineB);
+
+    int vertices = m_playerConfig.vertices;
+
+    auto entity = m_entityManager.addEntity("player"); 
     // TODO: implement using PlayerConfig
-    entity -> cTransform = std::make_shared<CTransform>(Vec2(mx, my), Vec2(0.0f, 0.0f), 0.0f);
-    entity -> cCollision = std::make_shared<CCollision>(50.0f);
-
+    entity -> cTransform = std::make_shared<CTransform>(centre);
+    entity -> cCollision = std::make_shared<CCollision>(collisionRadius);
     // set the entity's shape have radius 32, 8 vertices
-    entity -> cShape = std::make_shared<CShape> (50.0f, 5, sf::Color(255,255,255), sf::Color(255,255,255), 2.0f);
-
+    entity -> cShape = std::make_shared<CShape> (shapeRadius, vertices, fill, outline, thickness);
     // Add input component to the player
     entity -> cInput = std::make_shared<CInput>();
 
@@ -348,26 +424,38 @@ void Game::spawnPlayer()
 // spawn an enemy at a random position
 void Game::spawnEnemy()
 {
-    auto entity = m_entityManager.addEntity("enemy");
-
-    // radius between min and max
-    int radius = rand() % 40 + 15;
-    // vertices between [3,8]
-    int vertices = rand() % 6 + 3; 
-
-    float speedX = -(rand()%6)+3;
-    float speedY = -(rand()%6)+3;
+    // data preparation
+    int shapeRadius = m_enemyConfig.shapeRadius; 
+    int collisionRadius = m_enemyConfig.collisionRadius; 
+    // vertices 
+    int minVertices = m_enemyConfig.minVertices;
+    int maxVertices = m_enemyConfig.maxVertices;
+    int vertices = rand() % (maxVertices + 1) + minVertices; 
+    // speed 
+    int angle = rand();
+    float speedScalar = rand() % (1 + int(m_enemyConfig.maxSpeed)) + m_enemyConfig.minSpeed; 
+    float speedX = speedScalar * cosf(angle);
+    float speedY = - speedScalar * sinf(angle);
     Vec2 speed = {speedX, speedY};
-
-    float enemyX = rand() % (m_window.getSize().x - radius) + radius;
-    float enemyY = rand() % (m_window.getSize().y - radius) + radius;
+    // position
+    float enemyX = rand() % (m_window.getSize().x - collisionRadius) + collisionRadius;
+    float enemyY = rand() % (m_window.getSize().y - collisionRadius) + collisionRadius;
     Vec2 position = {enemyX, enemyY};
 
-    // TODO: implement using EnemyConfig
-    entity -> cTransform = std::make_shared<CTransform> (position, speed, 0.0f);
-    entity -> cShape = std::make_shared<CShape> (radius, vertices, sf::Color(0,0,255), sf::Color(255,255,255), 2.0f);
-    entity -> cCollision = std::make_shared<CCollision> (32.0f);
-    entity -> cScore = std::make_shared<CScore> (100 * vertices); 
+    int outlineRed = m_enemyConfig.outlineRed;
+    int outlineGreen = m_enemyConfig.outlineGreen;
+    int outlineBlue = m_enemyConfig.outlineBlue;
+    int outlineThickness = m_enemyConfig.outlineThickness;
+    std::cout << outlineRed << outlineGreen << outlineBlue;
+    const auto fillColor = sf::Color(0,0,0);
+    auto outlineColor = sf::Color(outlineRed,outlineGreen,outlineBlue);
+
+    auto entity = m_entityManager.addEntity("enemy");
+    entity -> cTransform = std::make_shared<CTransform> (position, speed);
+    entity -> cShape = std::make_shared<CShape> (shapeRadius, vertices, fillColor, outlineColor, outlineThickness);
+    entity -> cCollision = std::make_shared<CCollision> (collisionRadius);
+    entity -> cScore = std::make_shared<CScore> (m_scorePerVertices * vertices); 
+
 }
 
 
@@ -382,6 +470,7 @@ Vec2 calculatePosition(Vec2 center, float angle, float radius)
 // spawn samll enemies when enemy died
 void Game::spawnSmallEnemies(std::shared_ptr<Entity> deadEntity)
 {
+    int lifeSpan = m_enemyConfig.smallEnemyLifespan;
     float vertices = deadEntity->cShape->circle.getPointCount();
     float radius = deadEntity ->cShape->circle.getRadius();
     float collisionRadius = (deadEntity->cCollision->radius)/2;
@@ -402,8 +491,8 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> deadEntity)
         e -> cTransform = std::make_shared<CTransform> (position, speed, 0.0f);
         e -> cShape = std::make_shared<CShape> (8.0f, vertices, fColor, oColor,2.0f);
         e -> cCollision = std::make_shared<CCollision> (collisionRadius);
-        e -> cScore = std::make_shared<CScore> (100 * vertices); 
-        e -> cLifeSpan = std::make_shared<CLifeSpan>(60);
+        e -> cScore = std::make_shared<CScore> (m_scorePerVertices * vertices); 
+        e -> cLifeSpan = std::make_shared<CLifeSpan>(lifeSpan);
     }
 }
 

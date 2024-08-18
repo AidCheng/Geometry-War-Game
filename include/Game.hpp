@@ -7,6 +7,8 @@
 
 class Game
 {
+    const int           m_scorePerVertices = 100;
+
     sf::RenderWindow    m_window;
     EntityManager       m_entityManager;
     sf::Font            m_font;
@@ -26,6 +28,11 @@ class Game
     void init(const std::string& config);
     void setPaused();
     
+    void config(const std::string& path);
+    void configWindow(std::ifstream& fin);
+    void configPlayer(std::ifstream& fin);
+    void configEnemy(std::ifstream& fin);
+
     void sMovement();
     void sUserInput();
     void sLifespan();

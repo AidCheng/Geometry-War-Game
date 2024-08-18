@@ -1,6 +1,4 @@
-Window
-Text
-Player
-Enemy
-SmallEnemy
-Bullet
+Window 1280 720 60 0
+Player 40 45 7.5 100 181 115 255 255 255 1 5
+Enemy 25 30 1.0 10.0 227 157 129 5 3 12 90 120  
+

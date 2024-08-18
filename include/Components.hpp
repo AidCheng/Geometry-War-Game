@@ -10,10 +10,10 @@ class CTransform
 {
 public:
     Vec2 position;
-    Vec2 velocity = {0,0};
-    float angle    =  0;
+    Vec2 velocity;
+    float angle;
 
-    CTransform(Vec2 position, Vec2 velocity, float angle)
+    CTransform(Vec2 position, Vec2 velocity = {0,0}, float angle = 0)
         : angle(angle)
         , position(position)
         , velocity(velocity) 
@@ -25,7 +25,7 @@ class CShape
 public:
     sf::CircleShape circle; 
     CShape(float radius, int points, const sf::Color& fill,
-          const sf::Color& outline, float thickness)
+          const sf::Color& outline, int thickness)
           : circle(radius, points)
     {
         circle.setFillColor(fill);

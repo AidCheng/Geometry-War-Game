@@ -3,11 +3,11 @@
 #include "Game.hpp"
 #include <iostream>
 
+const std::string CONFIG = "../config/config.txt";
 
 int main()
 {
-    std::string config = "config";
-    auto game = Game(config);
+    auto game = Game(CONFIG);
     game.run();
     return 0;
 }
